@@ -4,10 +4,23 @@ struct CodeLLVM <: AbstractCode
     args::Any
     kwargs::Any
     cache::Dict{Symbol,Any}
+    abspath::Base.RefValue{Union{Nothing,String}}
 end
+
+CodeLLVM(ir, user_dump_module, args, kwargs) =
+    CodeLLVM(ir, user_dump_module, args, kwargs, Dict{Symbol,Any}(), Ref{Union{Nothing,String}}(nothing))
 
 Base.string(llvm::CodeLLVM) = Fields(llvm).ir
 Base.print(io::IO, llvm::CodeLLVM) = print(io, string(llvm))
+
+function Base.abspath(llvm::CodeLLVM)
+    p = Fields(llvm).abspath[]
+    p === nothing || return p
+    p = joinpath(mktempdir(prefix = "jl_codeviz_"), "code.ll")
+    write(p, string(llvm))
+    Fields(llvm).abspath[] = p
+    return p
+end
 
 macro llvm(args...)
     gen_call_with_extracted_types_and_kwargs(__module__, CodeViz.llvm, args)
@@ -19,7 +32,7 @@ function CodeViz.llvm(args...; dump_module = false, kwargs...)
         @nospecialize
         code_llvm(io, args...; dump_module = true, kwargs...)
     end
-    return CodeLLVM(ir, dump_module, args, kwargs, Dict{Symbol,Any}())
+    return CodeLLVM(ir, dump_module, args, kwargs)
 end
 
 function Base.summary(io::IO, llvm::CodeLLVM)
