@@ -1,7 +1,28 @@
+function julia_toolsdir()
+    prefix = dirname(dirname(Base.julia_cmd().exec[1]))
+    toolsdir = joinpath(prefix, "tools")
+    isfile(joinpath(toolsdir, "opt")) && return toolsdir
+    return nothing
+end
+
 Base.@kwdef mutable struct CodeVizConfig
-    opt = `opt`
-    dot = `dot`
-    pygmentize = `pygmentize`
+    toolsdir::Union{String,Nothing} = julia_toolsdir()
+    opt = nothing
+    llc = nothing
+    dot = nothing
+    pygmentize = nothing
+end
+
+getcmd(name::Symbol) = getcmd(CodeViz.CONFIG, name)
+function getcmd(config::CodeVizConfig, name::Symbol)
+    cmd = getfield(config, name)
+    cmd === nothing || return cmd
+    toolsdir = config.toolsdir
+    if toolsdir !== nothing
+        candidate = joinpath(toolsdir, string(name))
+        isfile(candidate) && return `$candidate`
+    end
+    return `$(string(name))`
 end
 
 
@@ -21,3 +42,22 @@ end
 
 Base.propertynames(fields::Fields) = propertynames(getfield(fields, :object))
 Base.getproperty(fields::Fields, name::Symbol) = getfield(getfield(fields, :object), name)
+
+function write_silently(cmd, input; stdout = devnull)
+    errio = IOBuffer()
+    proc = open(pipeline(cmd, stderr = errio, stdout = stdout), write = true)
+    try
+        write(proc, input)
+    finally
+        close(proc)
+    end
+    wait(proc)
+    if proc.exitcode != 0
+        cmd0 = setenv(cmd)
+        error(
+            "Command $cmd0 (cwd: $(cmd.dir)) failed with code $(proc.exitcode) and error:\n",
+            String(take!(errio)),
+        )
+    end
+    return proc
+end

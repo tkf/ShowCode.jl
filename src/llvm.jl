@@ -1,3 +1,31 @@
+"""
+    c = CodeViz.@llvm f(args...)
+
+LLVM IR visualizer.
+
+```julia
+c                  # view IR in the REPL
+display(c)         # (ditto)
+edit(c)            # open
+print(c)           # print the IR
+abspath(c)         # file path to the text containing the IR
+
+c.native           # create native code visualizer
+c.att              # (ditto)
+c.intel            # create native code visualizer in intel syntax
+eidt(c.native)
+abspath(c.native)
+
+c.cfg              # control-flow graph (CFG) visualizer
+display(c.cfg)     # display CFG
+edit(c.cfg.png)    # open PNG file in your editor
+edit(c.cfg.svg)    # same for SVG
+abspath(c.cfg.png) # file path to the PNG image
+c.cfg_only
+c.dom
+# ... and so on; type `c.` + TAB to see all the list
+```
+"""
 struct CodeLLVM <: AbstractCode
     ir::String
     user_dump_module::Bool
@@ -7,8 +35,14 @@ struct CodeLLVM <: AbstractCode
     abspath::Base.RefValue{Union{Nothing,String}}
 end
 
-CodeLLVM(ir, user_dump_module, args, kwargs) =
-    CodeLLVM(ir, user_dump_module, args, kwargs, Dict{Symbol,Any}(), Ref{Union{Nothing,String}}(nothing))
+CodeLLVM(ir, user_dump_module, args, kwargs) = CodeLLVM(
+    ir,
+    user_dump_module,
+    args,
+    kwargs,
+    Dict{Symbol,Any}(),
+    Ref{Union{Nothing,String}}(nothing),
+)
 
 Base.string(llvm::CodeLLVM) = Fields(llvm).ir
 Base.print(io::IO, llvm::CodeLLVM) = print(io, string(llvm))
@@ -71,37 +105,42 @@ function print_main_llvm_ir(io, ir)
     end
 end
 
-# https://llvm.org/docs/Passes.html
-Base.propertynames(llvm::CodeLLVM) =
-    (:callgraph, :cfg, :cfg_only, :dom, :dom_only, :postdom, :postdom_only)
+Base.propertynames(llvm::CodeLLVM) = (
+    # conversions to `CodeNative`:
+    :native,
+    :intel,
+    :att,
+    # `-dot-*` passes https://llvm.org/docs/Passes.html
+    :callgraph,
+    :cfg,
+    :cfg_only,
+    :dom,
+    :dom_only,
+    :postdom,
+    :postdom_only,
+)
 
 # TODO: make getproperty I/O-free; just return a lazy object
-Base.getproperty(llvm::CodeLLVM, name::Symbol) = get!(Fields(llvm).cache, name) do
-    run_opt_dot(llvm, name)
-end::LLVMDot
+Base.getproperty(llvm::CodeLLVM, name::Symbol) =
+    get!(Fields(llvm).cache, name) do
+        if name in (:native, :intel, :att)
+            syntax = name == :native ? :att : name
+            CodeNative(llvm, syntax)
+        else
+            run_opt_dot(llvm, name)
+        end
+    end::Union{LLVMDot,CodeNative}
 
 function run_opt_dot(llvm::CodeLLVM, name)
     ir = string(llvm)
     dotarg = "-dot-" * replace(string(name), "_" => "-")  # e.g., -dot-cfg
     dumpdir = mktempdir(prefix = "jl_codeviz_")
-    cmd0 = `$(CodeViz.CONFIG.opt) $dotarg -`
+    cmd = getcmd(:opt)
+    cmd = cmd0 = `$cmd $dotarg -`
     cmd = setenv(cmd0; dir = dumpdir)
     # TODO: don't hide handle error messages (if any)
 
-    errio = IOBuffer()
-    proc = open(pipeline(cmd, stderr = errio, stdout = devnull), write = true)
-    try
-        write(proc, ir)
-    finally
-        close(proc)
-    end
-    wait(proc)
-    if proc.exitcode != 0
-        error(
-            "Command $cmd0 (cwd: $dumpdir) failed with code $(proc.exitcode) and error:\n",
-            String(take!(errio)),
-        )
-    end
+    write_silently(cmd, ir)
 
     return LLVMDot(llvm, cmd, dumpdir)
 end
@@ -153,7 +192,8 @@ function dot_compile(dotpath, imgpath)
     # TODO: don't hide handle error messages (if any)
     _, ext = splitext(imgpath)
     fmt = lstrip(ext, '.')
-    cmd = `$(CodeViz.CONFIG.dot) -o$imgpath -T$fmt $dotpath`
+    cmd = getcmd(:dot)
+    cmd = `$cmd -o$imgpath -T$fmt $dotpath`
     @debug "Run: $cmd"
     run(pipeline(cmd, stdout = devnull, stderr = devnull, stdin = devnull))
 end
