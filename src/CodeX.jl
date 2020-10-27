@@ -1,4 +1,4 @@
-baremodule CodeViz
+baremodule CodeX
 
 #=
 macro sexpr end
@@ -15,8 +15,8 @@ function intel end
 
 module Implementations
 
-using ..CodeViz: CodeViz
-import ..CodeViz: @llvm, @native, @intel
+using ..CodeX: CodeX
+import ..CodeX: @llvm, @native, @intel
 
 using InteractiveUtils:
     InteractiveUtils,
@@ -33,6 +33,6 @@ include("llvm.jl")
 include("native.jl")
 end
 
-const CONFIG = Implementations.CodeVizConfig()
+const CONFIG = Implementations.CodeXConfig()
 
 end

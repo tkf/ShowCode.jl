@@ -1,9 +1,9 @@
 """
-    c = CodeViz.@native f(args...)
-    c = CodeViz.@intel f(args...)
-    c = (CodeViz.@llvm f(args...)).native
-    c = (CodeViz.@llvm f(args...)).att
-    c = (CodeViz.@llvm f(args...)).intel
+    c = CodeX.@native f(args...)
+    c = CodeX.@intel f(args...)
+    c = (CodeX.@llvm f(args...)).native
+    c = (CodeX.@llvm f(args...)).att
+    c = (CodeX.@llvm f(args...)).intel
 
 Native code explore.
 
@@ -47,17 +47,17 @@ function Base.show(io::IO, ::MIME"text/plain", native::CodeNative)
 end
 
 macro native(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, CodeViz.native, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, CodeX.native, args)
 end
 
 macro intel(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, CodeViz.intel, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, CodeX.intel, args)
 end
 
-function CodeViz.native(args...; dump_module = false, syntax = :att, kwargs...)
+function CodeX.native(args...; dump_module = false, syntax = :att, kwargs...)
     if dump_module
         return getproperty(
-            CodeViz.llvm(args...; dump_module = dump_module, kwargs...),
+            CodeX.llvm(args...; dump_module = dump_module, kwargs...),
             syntax,
         )
     end
@@ -69,7 +69,7 @@ function CodeViz.native(args...; dump_module = false, syntax = :att, kwargs...)
     return CodeNative(code, syntax, dump_module, args, kwargs)
 end
 
-CodeViz.intel(args...; kwargs...) = CodeViz.native(args...; syntax = :intel, kwargs...)
+CodeX.intel(args...; kwargs...) = CodeX.native(args...; syntax = :intel, kwargs...)
 
 function CodeNative(llvm::CodeLLVM, syntax::Symbol)
     @unpack user_dump_module, args, kwargs = Fields(llvm)

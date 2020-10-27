@@ -5,7 +5,7 @@ function julia_toolsdir()
     return nothing
 end
 
-Base.@kwdef mutable struct CodeVizConfig
+Base.@kwdef mutable struct CodeXConfig
     toolsdir::Union{String,Nothing} = julia_toolsdir()
     opt = nothing
     llc = nothing
@@ -13,8 +13,8 @@ Base.@kwdef mutable struct CodeVizConfig
     pygmentize = nothing
 end
 
-getcmd(name::Symbol) = getcmd(CodeViz.CONFIG, name)
-function getcmd(config::CodeVizConfig, name::Symbol)
+getcmd(name::Symbol) = getcmd(CodeX.CONFIG, name)
+function getcmd(config::CodeXConfig, name::Symbol)
     cmd = getfield(config, name)
     cmd === nothing || return cmd
     toolsdir = config.toolsdir

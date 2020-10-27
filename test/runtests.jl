@@ -1,6 +1,6 @@
-using CodeViz
+using CodeX
 using Test
 
-@testset "CodeViz.jl" begin
+@testset "CodeX.jl" begin
     # Write your tests here.
 end

@@ -1,5 +1,5 @@
 """
-    c = CodeViz.@llvm f(args...)
+    c = CodeX.@llvm f(args...)
 
 LLVM IR visualizer.
 
@@ -57,10 +57,10 @@ function Base.abspath(llvm::CodeLLVM)
 end
 
 macro llvm(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, CodeViz.llvm, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, CodeX.llvm, args)
 end
 
-function CodeViz.llvm(args...; dump_module = false, kwargs...)
+function CodeX.llvm(args...; dump_module = false, kwargs...)
     @nospecialize
     ir = sprint() do io
         @nospecialize
