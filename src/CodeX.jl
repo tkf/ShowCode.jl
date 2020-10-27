@@ -18,6 +18,10 @@ module Implementations
 using ..CodeX: CodeX
 import ..CodeX: @llvm, @native, @intel
 
+import DefaultApplication
+import HTTP
+import JSON
+using Base64: base64encode
 using InteractiveUtils:
     InteractiveUtils,
     code_llvm,
@@ -31,6 +35,7 @@ using UnPack: @unpack
 include("core.jl")
 include("llvm.jl")
 include("native.jl")
+include("godbolt.jl")
 end
 
 const CONFIG = Implementations.CodeXConfig()

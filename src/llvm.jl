@@ -118,6 +118,8 @@ Base.propertynames(llvm::CodeLLVM) = (
     :dom_only,
     :postdom,
     :postdom_only,
+    # misc
+    :godbolt,
 )
 
 # TODO: make getproperty I/O-free; just return a lazy object
@@ -126,10 +128,12 @@ Base.getproperty(llvm::CodeLLVM, name::Symbol) =
         if name in (:native, :intel, :att)
             syntax = name == :native ? :att : name
             CodeNative(llvm, syntax)
+        elseif name === :godbolt
+            Godbolt(llvm)
         else
             run_opt_dot(llvm, name)
         end
-    end::Union{LLVMDot,CodeNative}
+    end::Union{LLVMDot,CodeNative,Godbolt}
 
 function run_opt_dot(llvm::CodeLLVM, name)
     ir = string(llvm)

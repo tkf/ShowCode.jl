@@ -28,6 +28,22 @@ end
 CodeNative(args::Vararg{Any,5}) =
     CodeNative(args..., Dict{Symbol,Any}(), Ref{Union{Nothing,String}}(nothing))
 
+Base.string(native::CodeNative) = Fields(native).code
+Base.print(io::IO, native::CodeNative) = print(io, string(native))
+
+Base.propertynames(native::CodeNative) = (
+    # what else?
+    :godbolt,
+)
+
+Base.getproperty(native::CodeNative, name::Symbol) =
+    if name === :godbolt
+        Godbolt(native)
+    else
+        error("Unknown property: ", name)
+    end
+
+
 function Base.summary(io::IO, native::CodeNative)
     f, t = Fields(native).args
     print(io, "CodeNative of ", f, " with ", t)
