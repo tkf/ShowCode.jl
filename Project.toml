@@ -3,6 +3,10 @@ uuid = "fbbff153-1401-46bf-af9e-2c5a1512dd5a"
 authors = ["Takafumi Arakaki <aka.tkf@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
+UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
+
 [compat]
 julia = "1"
 
