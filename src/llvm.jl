@@ -162,12 +162,19 @@ Base.getproperty(dot::LLVMDot, ext::Symbol) = LLVMDotImage(dot, ".$ext")
 
 Base.abspath(dot::LLVMDot) = dotpath(dot)
 
-dotpath(dot) = only(
-    p
-    for
-    p in readdir(dirname(dot); join = true) if
-    match(r".*\.julia_", basename(p)) !== nothing && endswith(p, ".dot")
-)
+function dotpath(dot)
+    candidates = [
+        p
+        for
+        p in readdir(dirname(dot); join = true) if
+        match(r".*\.jfptr_.*", basename(p)) === nothing && endswith(p, ".dot")
+    ]
+    sort!(candidates; by = length)
+    if length(candidates) > 1
+        @debug "Ignoring some dot files." candidates[2:end]
+    end
+    return candidates[1]
+end
 
 
 struct LLVMDotImage <: AbstractCode
