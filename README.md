@@ -54,7 +54,7 @@ print(c)           # print the code
 abspath(c)         # file path to the text containing the code
 ```
 
-## Post to [Godbolt](https://godbolt.org/) (Compiler Explore)
+## Post to [`godbolt.org`](https://godbolt.org/) (Compiler Explore)
 
 **WARNING**: For code with non-trivial length, it *posts* the code to
 godbolt.org and there is no way to delete the code as of writing.
