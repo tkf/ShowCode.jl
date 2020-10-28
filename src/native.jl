@@ -33,6 +33,15 @@ CodeNative(args::Vararg{Any,5}) =
 Base.string(native::CodeNative) = Fields(native).code
 Base.print(io::IO, native::CodeNative) = print(io, string(native))
 
+function Base.abspath(native::CodeNative)
+    p = Fields(native).abspath[]
+    p === nothing || return p
+    p = joinpath(mktempdir(prefix = "jl_codeviz_"), "code.s")
+    write(p, string(native))
+    Fields(native).abspath[] = p
+    return p
+end
+
 Base.propertynames(native::CodeNative) = (
     # what else?
     :godbolt,
