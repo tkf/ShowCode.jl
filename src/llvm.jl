@@ -170,7 +170,7 @@ dotpath(dot) = only(
 )
 
 
-struct LLVMDotImage
+struct LLVMDotImage <: AbstractCode
     dot::LLVMDot
     ext::String
 
@@ -192,6 +192,11 @@ function Base.abspath(dotimg::LLVMDotImage)
     imgpath = _imagepath(dotimg)
     ensure_dot_compile(dotpath(dotimg), imgpath)
     return imgpath
+end
+
+function Base.show(io::IO, ::MIME"text/plain", dotimg::LLVMDotImage)
+    print(io, "LLVMDotImage at ")
+    print(io, abspath(dotimg))
 end
 
 function dot_compile(dotpath, imgpath)
