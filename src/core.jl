@@ -40,7 +40,7 @@ struct Fields{T}
     object::T
 end
 
-Base.propertynames(fields::Fields) = propertynames(getfield(fields, :object))
+Base.propertynames(::Fields{T}) where {T} = fieldnames(T)
 Base.getproperty(fields::Fields, name::Symbol) = getfield(getfield(fields, :object), name)
 
 function write_silently(cmd, input; stdout = devnull)
