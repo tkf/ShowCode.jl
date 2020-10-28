@@ -3,17 +3,6 @@
 
 abstract type GodboltBase end
 
-"""
-    ce = (CodeX.@llvm ...).godbolt
-    ce = (CodeX.@native ...).godbolt
-
-Interface to godbolt.org (compiler explore).
-
-```julia
-string(ce)  # godbolt URL
-ce()        # open the URL in browser
-```
-"""
 struct Godbolt <: GodboltBase
     code::Any
     cache::Dict{String,Any}

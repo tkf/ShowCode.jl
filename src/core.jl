@@ -61,3 +61,8 @@ function write_silently(cmd, input; stdout = devnull)
     end
     return proc
 end
+
+function finalize_module()
+    doc = read(joinpath(dirname(@__DIR__), "README.md"), String)
+    @eval CodeX $Base.@doc $doc CodeX
+end

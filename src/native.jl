@@ -10,11 +10,13 @@ Native code explore.
 ```julia
 c                  # view code in the REPL
 display(c)         # (ditto)
-edit(c)            # open
+edit(c)            # open the code in editor
 print(c)           # print the code
 abspath(c)         # file path to the text containing the code
 ```
 """
+(:(@native), :(@intel))
+
 struct CodeNative <: AbstractCode
     code::String
     syntax::Symbol

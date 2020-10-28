@@ -1,18 +1,18 @@
 """
     c = CodeX.@llvm f(args...)
 
-LLVM IR visualizer.
+LLVM IR explore.
 
 ```julia
 c                  # view IR in the REPL
 display(c)         # (ditto)
-edit(c)            # open
+edit(c)            # open the IR in editor
 print(c)           # print the IR
 abspath(c)         # file path to the text containing the IR
 
-c.native           # create native code visualizer
+c.native           # create native code explore
 c.att              # (ditto)
-c.intel            # create native code visualizer in intel syntax
+c.intel            # create native code explore in intel syntax
 eidt(c.native)
 abspath(c.native)
 
@@ -26,6 +26,8 @@ c.dom
 # ... and so on; type `c.` + TAB to see all the list
 ```
 """
+:(@llvm)
+
 struct CodeLLVM <: AbstractCode
     ir::String
     user_dump_module::Bool

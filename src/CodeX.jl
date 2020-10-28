@@ -40,4 +40,6 @@ end
 
 const CONFIG = Implementations.CodeXConfig()
 
+Implementations.finalize_module()
+
 end
