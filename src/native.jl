@@ -17,6 +17,25 @@ abspath(c)         # file path to the text containing the code
 """
 (:(@native), :(@intel))
 
+"""
+    CodeX.from_native(code::AbstractString)
+
+Construct a native code explore from a snippet of ASM.
+
+For example,
+
+```julia
+a = CodeX.@native dump_module=true f(...)
+b = CodeX.from_native(string(a))
+```
+
+should be roughly equivalent.
+"""
+function CodeX.from_native(code::AbstractString; syntax = :att)
+    # TODO: guess syntax?
+    return CodeNative(String(code), syntax, true, ("f?", "Tuple{?}"), nothing)
+end
+
 struct CodeNative <: AbstractCode
     code::String
     syntax::Symbol

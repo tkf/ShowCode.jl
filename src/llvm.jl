@@ -28,6 +28,23 @@ c.dom
 """
 :(@llvm)
 
+"""
+    CodeX.from_llvm(ir::AbstractString)
+
+Construct a LLVM IR explore from a snippet of LLVM IR.
+
+For example,
+
+```julia
+a = CodeX.@llvm dump_module=true f(...)
+b = CodeX.from_llvm(string(a))
+```
+
+should be roughly equivalent.
+"""
+CodeX.from_llvm(ir::AbstractString) =
+    CodeLLVM(String(ir), true, ("f?", "Tuple{?}"), nothing)
+
 struct CodeLLVM <: AbstractCode
     ir::String
     user_dump_module::Bool

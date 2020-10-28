@@ -13,6 +13,9 @@ function llvm end
 function native end
 function intel end
 
+function from_llvm end
+function from_native end
+
 module Implementations
 
 using ..CodeX: CodeX
