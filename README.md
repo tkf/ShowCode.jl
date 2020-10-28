@@ -66,3 +66,15 @@ ce = (CodeX.@native ...).godbolt
 string(ce)  # get godbolt URL
 ce()        # open the URL in browser
 ```
+
+## Cthulhu integration
+
+During Cthulhu's descent session, you can press <kbd>b</kbd> to
+"bookmark" the method you are browsing.  This is stored in the global
+variable `Cthulhu.BOOKMARKS`.  This can be converted to code explores
+by:
+
+```julia
+c = CodeX.llvm(Cthulhu.BOOKMARKS[END])
+c = CodeX.native(Cthulhu.BOOKMARKS[END])
+```

@@ -29,16 +29,23 @@ using InteractiveUtils:
     InteractiveUtils,
     code_llvm,
     code_lowered,
+    code_native,
     code_typed,
     gen_call_with_extracted_types_and_kwargs,
     print_llvm,
     print_native
+using Requires: @require
 using UnPack: @unpack
 
 include("core.jl")
 include("llvm.jl")
 include("native.jl")
 include("godbolt.jl")
+
+function __init__()
+    @require Cthulhu="f68482b8-f384-11e8-15f7-abe071a5a75f" include("cthulhu.jl")
+end
+
 end
 
 const CONFIG = Implementations.CodeXConfig()
