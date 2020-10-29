@@ -168,43 +168,106 @@ function run_opt_dot(llvm::CodeLLVM, name)
     return LLVMDot(llvm, cmd, dumpdir)
 end
 
-struct LLVMDot <: AbstractCode
+abstract type AbstractLLVMDot <: AbstractCode end
+AbstractLLVMDot(dot::AbstractLLVMDot) = dot
+Base.getproperty(dot::AbstractLLVMDot, ext::Symbol) = LLVMDotImage(dot, ".$ext")
+dotpath(dot) = abspath(AbstractLLVMDot(dot))
+Base.basename(dot::AbstractLLVMDot) = basename(abspath(dot))
+
+struct LLVMDot <: AbstractLLVMDot
     llvm::CodeLLVM
     cmd::Cmd
     dumpdir::String
 end
 
 Base.dirname(dot::LLVMDot) = Fields(dot).dumpdir
-Base.getproperty(dot::LLVMDot, ext::Symbol) = LLVMDotImage(dot, ".$ext")
 
-Base.abspath(dot::LLVMDot) = dotpath(dot)
-
-function dotpath(dot)
-    candidates = [
-        p
-        for
-        p in readdir(dirname(dot); join = true) if
-        match(r".*\.jfptr_.*", basename(p)) === nothing && endswith(p, ".dot")
-    ]
-    sort!(candidates; by = length)
+function Base.abspath(dot::LLVMDot)
+    candidates = map(abspath, collect(dot))
     if length(candidates) > 1
         @debug "Ignoring some dot files." candidates[2:end]
     end
     return candidates[1]
 end
 
+struct SubLLVMDot <: AbstractLLVMDot
+    dot::LLVMDot
+    abspath::String
+end
+
+Base.abspath(dot::SubLLVMDot) = Fields(dot).abspath
+dotpath(dot::SubLLVMDot) = abspath(dot)
+
+function Base.collect(dot::LLVMDot)
+    alldots = [
+        SubLLVMDot(dot, p)
+        for
+        p in readdir(dirname(dot); join = true) if
+        match(r".*\.jfptr_.*", basename(p)) === nothing && endswith(p, ".dot")
+    ]
+    sort!(alldots; by = length ∘ abspath)
+    return alldots
+end
+
+Base.keys(dot::LLVMDot) = keys(pairs(dot))
+Base.values(dot::LLVMDot) = values(pairs(dot))
+
+function Base.pairs(dot::LLVMDot)
+    defaultpath = abspath(dot)
+    prefix, _ = splitext(basename(defaultpath))
+    kvs = Dict{String,SubLLVMDot}()
+    for dot in collect(dot)
+        abspath(dot) == defaultpath && continue
+        k, _ = splitext(basename(abspath(dot)))
+        kvs[k] = dot
+    end
+    for k in collect(keys(kvs))
+        if startswith(k, prefix)
+            knew = k[length(prefix)+1:end]
+            if !haskey(kvs, knew)
+                kvs[knew] = pop!(kvs, k)
+            end
+        end
+    end
+    return kvs
+end
+
+stemname(x) = splitext(basename(x))[1]
+
+function Base.getindex(dot::LLVMDot, needle::AbstractString)
+    alldots = collect(dot)
+    candidates = filter(d -> needle == stemname(d), alldots)
+    length(candidates) == 1 && return candidates[1]
+
+    defaultpath = abspath(dot)
+    prefix, _ = splitext(basename(defaultpath))
+    candidates = filter(d -> prefix * needle == stemname(d), alldots)
+    length(candidates) == 1 && return candidates[1]
+
+    candidates = filter(d ->　occursin(needle, stemname(d)), alldots)
+    length(candidates) == 1 && return candidates[1]
+
+    error("No unique match found:\n", map(stemname, candidates))
+end
+
+function Base.getindex(dot::LLVMDot, pattern::Regex)
+    candidates = filter!(d ->　match(pattern, stemname(d)) !== nothing, collect(dot))
+    length(candidates) == 1 && return candidates[1]
+    error("No unique match found:\n", map(stemname, candidates))
+end
 
 struct LLVMDotImage <: AbstractCode
-    dot::LLVMDot
+    dot::AbstractLLVMDot
     ext::String
 
-    function LLVMDotImage(dot::LLVMDot, ext::String)
+    function LLVMDotImage(dot::AbstractLLVMDot, ext::String)
         @assert startswith(ext, ".")
         return new(dot, ext)
     end
 end
 
-Base.dirname(dotimg::LLVMDotImage) = dirname(Fields(dotimg).dot)
+AbstractLLVMDot(dotimg::LLVMDotImage) = Fields(dotimg).dot
+Base.dirname(dotimg::LLVMDotImage) = dirname(AbstractLLVMDot(dotimg))
 
 function _imagepath(dotimg::LLVMDotImage)
     @unpack dot, ext = Fields(dotimg)
@@ -247,5 +310,7 @@ function showdot(io::IO, ext::AbstractString, dotpath::AbstractString)
     return
 end
 
-Base.show(io::IO, ::MIME"image/png", dot::LLVMDot) = showdot(io, ".png", dotpath(dot))
-Base.show(io::IO, ::MIME"image/svg+xml", dot::LLVMDot) = showdot(io, ".svg", dotpath(dot))
+Base.show(io::IO, ::MIME"image/png", dot::AbstractLLVMDot) =
+    showdot(io, ".png", abspath(dot))
+Base.show(io::IO, ::MIME"image/svg+xml", dot::AbstractLLVMDot) =
+    showdot(io, ".svg", abspath(dot))
