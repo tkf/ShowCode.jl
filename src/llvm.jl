@@ -1,5 +1,5 @@
 """
-    c = ShowCode.@llvm f(args...)
+    c = @sc_llvm f(args...)
 
 LLVM IR explore.
 
@@ -26,7 +26,7 @@ c.dom
 # ... and so on; type `c.` + TAB to see all the list
 ```
 """
-:(@llvm)
+:(@sc_llvm)
 
 """
     ShowCode.from_llvm(ir::AbstractString)
@@ -36,7 +36,7 @@ Construct a LLVM IR explore from a snippet of LLVM IR.
 For example,
 
 ```julia
-a = ShowCode.@llvm dump_module=true f(...)
+a = @sc_llvm dump_module=true f(...)
 b = ShowCode.from_llvm(string(a))
 ```
 
@@ -75,11 +75,11 @@ function Base.abspath(llvm::CodeLLVM)
     return p
 end
 
-macro llvm(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, ShowCode.llvm, args)
+macro sc_llvm(args...)
+    gen_call_with_extracted_types_and_kwargs(__module__, sc_llvm, args)
 end
 
-function ShowCode.llvm(args...; dump_module = false, kwargs...)
+function sc_llvm(args...; dump_module = false, kwargs...)
     @nospecialize
     ir = sprint() do io
         @nospecialize

@@ -1,9 +1,9 @@
 """
-    c = ShowCode.@native f(args...)
-    c = ShowCode.@intel f(args...)
-    c = (ShowCode.@llvm f(args...)).native
-    c = (ShowCode.@llvm f(args...)).att
-    c = (ShowCode.@llvm f(args...)).intel
+    c = @sc_native f(args...)
+    c = @sc_intel f(args...)
+    c = (@sc_llvm f(args...)).native
+    c = (@sc_llvm f(args...)).att
+    c = (@sc_llvm f(args...)).intel
 
 Native code explore.
 
@@ -25,7 +25,7 @@ Construct a native code explore from a snippet of ASM.
 For example,
 
 ```julia
-a = ShowCode.@native dump_module=true f(...)
+a = @sc_native dump_module=true f(...)
 b = ShowCode.from_native(string(a))
 ```
 
@@ -93,17 +93,17 @@ function Base.show(io::IO, ::MIME"text/plain", native::CodeNative)
 end
 
 macro native(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, ShowCode.native, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, sc_native, args)
 end
 
 macro intel(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, ShowCode.intel, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, sc_intel, args)
 end
 
-function ShowCode.native(args...; dump_module = false, syntax = :att, kwargs...)
+function sc_native(args...; dump_module = false, syntax = :att, kwargs...)
     if dump_module
         return getproperty(
-            ShowCode.llvm(args...; dump_module = dump_module, kwargs...),
+            sc_llvm(args...; dump_module = dump_module, kwargs...),
             syntax,
         )
     end
@@ -115,7 +115,7 @@ function ShowCode.native(args...; dump_module = false, syntax = :att, kwargs...)
     return CodeNative(code, syntax, dump_module, args, kwargs)
 end
 
-ShowCode.intel(args...; kwargs...) = ShowCode.native(args...; syntax = :intel, kwargs...)
+sc_intel(args...; kwargs...) = sc_native(args...; syntax = :intel, kwargs...)
 
 function CodeNative(llvm::CodeLLVM, syntax::Symbol)
     @unpack user_dump_module, args, kwargs = Fields(llvm)

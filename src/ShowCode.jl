@@ -1,17 +1,19 @@
 baremodule ShowCode
 
-#=
-macro sexpr end
-macro lowered end
-macro typed end
-=#
-macro llvm end
-macro native end
-macro intel end
+export @sc_llvm, @sc_native, @sc_intel, sc_llvm, sc_native, sc_intel
 
-function llvm end
-function native end
-function intel end
+#=
+macro sc_sexpr end
+macro sc_lowered end
+macro sc_typed end
+=#
+macro sc_llvm end
+macro sc_native end
+macro sc_intel end
+
+function sc_llvm end
+function sc_native end
+function sc_intel end
 
 function from_llvm end
 function from_native end
@@ -19,7 +21,7 @@ function from_native end
 module Implementations
 
 using ..ShowCode: ShowCode
-import ..ShowCode: @llvm, @native, @intel
+import ..ShowCode: @sc_llvm, @sc_native, @sc_intel, sc_llvm, sc_native, sc_intel
 
 import DefaultApplication
 import HTTP

@@ -5,15 +5,15 @@
 ShowCode.jl provides interfaces like `@code_llvm` and `@code_native`:
 
 ```julia
-c = ShowCode.@llvm f(args...)
-c = ShowCode.@native f(args...)
-c = ShowCode.@intel f(args...)
+c = @sc_llvm f(args...)
+c = @sc_native f(args...)
+c = @sc_intel f(args...)
 ```
 
 ## LLVM IR
 
 ```julia
-c = ShowCode.@llvm f(args...)
+c = @sc_llvm f(args...)
 
 c                  # view IR in the REPL
 display(c)         # (ditto)
@@ -44,8 +44,8 @@ supported.
 ## Native Code
 
 ```julia
-c = ShowCode.@native f(args...)
-c = ShowCode.@intel f(args...)  # short hand for syntax=:intel
+c = @sc_native f(args...)
+c = @sc_intel f(args...)  # short hand for syntax=:intel
 
 c                  # view code in the REPL
 display(c)         # (ditto)
@@ -60,8 +60,8 @@ abspath(c)         # file path to the text containing the code
 godbolt.org and there is no way to delete the code as of writing.
 
 ```julia
-ce = (ShowCode.@llvm ...).godbolt
-ce = (ShowCode.@native ...).godbolt
+ce = (@sc_llvm ...).godbolt
+ce = (@sc_native ...).godbolt
 
 string(ce)  # get godbolt URL
 ce()        # open the URL in browser
@@ -75,6 +75,6 @@ variable `Cthulhu.BOOKMARKS`.  This can be converted to code explores
 by:
 
 ```julia
-c = ShowCode.llvm(Cthulhu.BOOKMARKS[END])
-c = ShowCode.native(Cthulhu.BOOKMARKS[END])
+c = sc_llvm(Cthulhu.BOOKMARKS[END])
+c = sc_native(Cthulhu.BOOKMARKS[END])
 ```
