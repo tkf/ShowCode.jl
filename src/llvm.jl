@@ -1,5 +1,5 @@
 """
-    c = CodeX.@llvm f(args...)
+    c = ShowCode.@llvm f(args...)
 
 LLVM IR explore.
 
@@ -29,20 +29,20 @@ c.dom
 :(@llvm)
 
 """
-    CodeX.from_llvm(ir::AbstractString)
+    ShowCode.from_llvm(ir::AbstractString)
 
 Construct a LLVM IR explore from a snippet of LLVM IR.
 
 For example,
 
 ```julia
-a = CodeX.@llvm dump_module=true f(...)
-b = CodeX.from_llvm(string(a))
+a = ShowCode.@llvm dump_module=true f(...)
+b = ShowCode.from_llvm(string(a))
 ```
 
 should be roughly equivalent.
 """
-CodeX.from_llvm(ir::AbstractString) =
+ShowCode.from_llvm(ir::AbstractString) =
     CodeLLVM(String(ir), true, ("f?", "Tuple{?}"), nothing)
 
 struct CodeLLVM <: AbstractCode
@@ -76,10 +76,10 @@ function Base.abspath(llvm::CodeLLVM)
 end
 
 macro llvm(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, CodeX.llvm, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, ShowCode.llvm, args)
 end
 
-function CodeX.llvm(args...; dump_module = false, kwargs...)
+function ShowCode.llvm(args...; dump_module = false, kwargs...)
     @nospecialize
     ir = sprint() do io
         @nospecialize

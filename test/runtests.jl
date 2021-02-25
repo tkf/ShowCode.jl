@@ -1,6 +1,6 @@
-using CodeX
+using ShowCode
 using Test
 
-@testset "CodeX.jl" begin
+@testset "ShowCode.jl" begin
     # Write your tests here.
 end

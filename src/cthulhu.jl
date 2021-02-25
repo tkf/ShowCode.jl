@@ -1,4 +1,4 @@
-function CodeX.llvm(b::Cthulhu.Bookmark; kw...)
+function ShowCode.llvm(b::Cthulhu.Bookmark; kw...)
     s = sprint() do io
         code_llvm(
             io,
@@ -8,12 +8,12 @@ function CodeX.llvm(b::Cthulhu.Bookmark; kw...)
             kw...,
         )
     end
-    return CodeX.from_llvm(s)
+    return ShowCode.from_llvm(s)
 end
 
-function CodeX.native(b::Cthulhu.Bookmark; kw...)
+function ShowCode.native(b::Cthulhu.Bookmark; kw...)
     s = sprint() do io
         code_native(io, b; config = Cthulhu.CthulhuConfig(enable_highlighter = false), kw...)
     end
-    return CodeX.from_native(s)
+    return ShowCode.from_native(s)
 end

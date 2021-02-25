@@ -1,5 +1,5 @@
-name = "CodeX"
-uuid = "66f288dc-6977-4378-bd53-6c6d46ce30ee"
+name = "ShowCode"
+uuid = "c14aca87-bccd-473b-bf6f-1f278cb6ee85"
 authors = ["Takafumi Arakaki <aka.tkf@gmail.com> and contributors"]
 version = "0.1.0"
 

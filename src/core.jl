@@ -5,7 +5,7 @@ function julia_toolsdir()
     return nothing
 end
 
-Base.@kwdef mutable struct CodeXConfig
+Base.@kwdef mutable struct ShowCodeConfig
     toolsdir::Union{String,Nothing} = julia_toolsdir()
     opt = nothing
     llc = nothing
@@ -13,8 +13,8 @@ Base.@kwdef mutable struct CodeXConfig
     pygmentize = nothing
 end
 
-getcmd(name::Symbol) = getcmd(CodeX.CONFIG, name)
-function getcmd(config::CodeXConfig, name::Symbol)
+getcmd(name::Symbol) = getcmd(ShowCode.CONFIG, name)
+function getcmd(config::ShowCodeConfig, name::Symbol)
     cmd = getfield(config, name)
     cmd === nothing || return cmd
     toolsdir = config.toolsdir
@@ -64,5 +64,5 @@ end
 
 function finalize_module()
     doc = read(joinpath(dirname(@__DIR__), "README.md"), String)
-    @eval CodeX $Base.@doc $doc CodeX
+    @eval ShowCode $Base.@doc $doc ShowCode
 end

@@ -1,9 +1,9 @@
 """
-    c = CodeX.@native f(args...)
-    c = CodeX.@intel f(args...)
-    c = (CodeX.@llvm f(args...)).native
-    c = (CodeX.@llvm f(args...)).att
-    c = (CodeX.@llvm f(args...)).intel
+    c = ShowCode.@native f(args...)
+    c = ShowCode.@intel f(args...)
+    c = (ShowCode.@llvm f(args...)).native
+    c = (ShowCode.@llvm f(args...)).att
+    c = (ShowCode.@llvm f(args...)).intel
 
 Native code explore.
 
@@ -18,20 +18,20 @@ abspath(c)         # file path to the text containing the code
 (:(@native), :(@intel))
 
 """
-    CodeX.from_native(code::AbstractString)
+    ShowCode.from_native(code::AbstractString)
 
 Construct a native code explore from a snippet of ASM.
 
 For example,
 
 ```julia
-a = CodeX.@native dump_module=true f(...)
-b = CodeX.from_native(string(a))
+a = ShowCode.@native dump_module=true f(...)
+b = ShowCode.from_native(string(a))
 ```
 
 should be roughly equivalent.
 """
-function CodeX.from_native(code::AbstractString; syntax = :att)
+function ShowCode.from_native(code::AbstractString; syntax = :att)
     # TODO: guess syntax?
     return CodeNative(String(code), syntax, true, ("f?", "Tuple{?}"), nothing)
 end
@@ -93,17 +93,17 @@ function Base.show(io::IO, ::MIME"text/plain", native::CodeNative)
 end
 
 macro native(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, CodeX.native, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, ShowCode.native, args)
 end
 
 macro intel(args...)
-    gen_call_with_extracted_types_and_kwargs(__module__, CodeX.intel, args)
+    gen_call_with_extracted_types_and_kwargs(__module__, ShowCode.intel, args)
 end
 
-function CodeX.native(args...; dump_module = false, syntax = :att, kwargs...)
+function ShowCode.native(args...; dump_module = false, syntax = :att, kwargs...)
     if dump_module
         return getproperty(
-            CodeX.llvm(args...; dump_module = dump_module, kwargs...),
+            ShowCode.llvm(args...; dump_module = dump_module, kwargs...),
             syntax,
         )
     end
@@ -115,7 +115,7 @@ function CodeX.native(args...; dump_module = false, syntax = :att, kwargs...)
     return CodeNative(code, syntax, dump_module, args, kwargs)
 end
 
-CodeX.intel(args...; kwargs...) = CodeX.native(args...; syntax = :intel, kwargs...)
+ShowCode.intel(args...; kwargs...) = ShowCode.native(args...; syntax = :intel, kwargs...)
 
 function CodeNative(llvm::CodeLLVM, syntax::Symbol)
     @unpack user_dump_module, args, kwargs = Fields(llvm)

@@ -1,4 +1,4 @@
-baremodule CodeX
+baremodule ShowCode
 
 #=
 macro sexpr end
@@ -18,8 +18,8 @@ function from_native end
 
 module Implementations
 
-using ..CodeX: CodeX
-import ..CodeX: @llvm, @native, @intel
+using ..ShowCode: ShowCode
+import ..ShowCode: @llvm, @native, @intel
 
 import DefaultApplication
 import HTTP
@@ -48,7 +48,7 @@ end
 
 end
 
-const CONFIG = Implementations.CodeXConfig()
+const CONFIG = Implementations.ShowCodeConfig()
 
 Implementations.finalize_module()
 
