@@ -1,3 +1,19 @@
+"""
+    post_godbolt(c.godbolt)
+
+Post code snippet in [Compiler Explore](godbolt.org).
+
+# Examples
+
+```julia
+c = @sc_llvm sum((1, 2, 3))
+ce = post_godbolt(c.godbolt)         # post the code
+string(ce)                           # get the URL
+ce()                                 # post it and then open the URL
+```
+"""
+post_godbolt
+
 # ce - Compiler Explore
 # cec - Compiler Explore Client
 
@@ -67,11 +83,21 @@ function clientstate(cec::GodboltClient)
     )
 end
 
-function Base.string(cec::GodboltClient)
-    @unpack url = Fields(cec)
-    url[] === nothing || return url[]
-    return url[] = godbolt_url(cec)
+function post_godbolt(ce::Godbolt)
+    post_godbolt(GodboltClient(ce))
+    return ce
 end
+
+function post_godbolt(cec::GodboltClient)
+    @unpack url = Fields(cec)
+    url[] === nothing || return cec
+    url[] = godbolt_url(cec)
+    return cec
+end
+
+get_url(cec::GodboltClient) = Fields(cec).url[]
+Base.string(cec::GodboltClient) = something(get_url(cec), "?? not posted ??")
+# TODO: maybe don't overload `string`?
 
 function godbolt_url(cec::GodboltClient)
     url = godbolt_base64url(cec)
@@ -99,7 +125,8 @@ function godbolt_shorturl(cec::GodboltClient)
 end
 
 function (cec::GodboltClient)()
-    DefaultApplication.open(string(cec); wait = false)
+    url = get_url(post_godbolt(cec))::AbstractString
+    DefaultApplication.open(url; wait = false)
     return
 end
 

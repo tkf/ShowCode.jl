@@ -1,6 +1,14 @@
 baremodule ShowCode
 
-export @sc_ircode, @sc_llvm, @sc_native, @sc_intel, sc_ircode, sc_llvm, sc_native, sc_intel
+export @sc_intel,
+    @sc_ircode,
+    @sc_llvm,
+    @sc_native,
+    post_godbolt,
+    sc_intel,
+    sc_ircode,
+    sc_llvm,
+    sc_native
 
 #=
 macro sc_sexpr end
@@ -20,11 +28,21 @@ function sc_intel end
 function from_llvm end
 function from_native end
 
+function post_godbolt end
+
 module Implementations
 
 using ..ShowCode: ShowCode
 import ..ShowCode:
-    @sc_ircode, @sc_llvm, @sc_native, @sc_intel, sc_ircode, sc_llvm, sc_native, sc_intel
+    @sc_intel,
+    @sc_ircode,
+    @sc_llvm,
+    @sc_native,
+    post_godbolt,
+    sc_intel,
+    sc_ircode,
+    sc_llvm,
+    sc_native
 
 import AbstractTrees
 import DefaultApplication
