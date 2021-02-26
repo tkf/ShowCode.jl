@@ -30,6 +30,7 @@ import AbstractTrees
 import DefaultApplication
 import HTTP
 import JSON
+using Accessors: @set
 using Base64: base64encode
 using InteractiveUtils:
     InteractiveUtils,

@@ -41,6 +41,8 @@ c.cfg_only |> DisplayAs.SVG
 
 struct IRCodeView <: AbstractCode
     ir::Core.Compiler.IRCode
+    f::Any
+    atype::Any
     rtype::Union{Type,Nothing}
     args::Any
     kwargs::Any
@@ -50,16 +52,38 @@ macro sc_ircode(args...)
     gen_call_with_extracted_types_and_kwargs(__module__, sc_ircode, args)
 end
 
-function sc_ircode(args...; kwargs...)
+function sc_ircode(f, argument_type; kwargs...)
     @nospecialize
     # TODO: handle multiple returns?
-    (ir, rtype), = code_ircode(args...; kwargs...)
-    return IRCodeView(ir, rtype, args, kwargs)
+    (ir, rtype), = code_ircode(f, argument_type; kwargs...)
+    args = (f, argument_type)
+    return IRCodeView(ir, f, argument_type, rtype, args, kwargs)
+end
+
+function sc_ircode(mi::Core.Compiler.MethodInstance; kwargs...)
+    @nospecialize
+    mth = mi.def
+    if mth isa Method
+        ftype = Base.tuple_type_head(mth.sig)
+        if Base.issingletontype(ftype)
+            f = ftype.instance
+        else
+            f = ftype  # ?
+        end
+        atype = Base.tuple_type_tail(mth.sig)
+    else
+        f = "f?"
+        atype = "Tuple{?}"
+    end
+
+    args = (mi,)
+    ir, rtype = code_ircode(args...; kwargs...)
+    return IRCodeView(ir, f, atype, rtype, args, kwargs)
 end
 
 function Base.summary(io::IO, llvm::IRCodeView)
-    f, t = Fields(llvm).args
-    print(io, "IRCodeView of ", f, " with ", t)
+    @unpack f, atype = Fields(llvm)
+    print(io, "IRCodeView of ", f, " with ", atype)
     return
 end
 
@@ -151,8 +175,7 @@ end
 print_dot(dot) = print_dot(stdout, dot)
 function print_dot(io::IO, dot::IRCodeCFGDot)
     @unpack ircv, include_code = Fields(dot)
-    @unpack ir, args = Fields(ircv)
-    f, t = args
+    @unpack ir = Fields(ircv)
 
     function bblabel(i)
         inst = ir.stmts.inst[ir.cfg.blocks[i].stmts[end]]
@@ -166,7 +189,7 @@ function print_dot(io::IO, dot::IRCodeCFGDot)
         return string(i)
     end
 
-    graphname = "CFG of $f on $t"
+    graphname = summary(dot)
     print(io, "digraph \"")
     escape_dot_label(io, graphname)
     println(io, "\" {")
@@ -215,8 +238,8 @@ function IRCodeDomTree(ircv::IRCodeView, include_code::Bool)
 end
 
 function Base.summary(io::IO, d::IRCodeDomTree)
-    f, t = Fields(Fields(d).ircv).args
-    print(io, "Dominator tree for $f on $t")
+    @unpack f, atype = Fields(Fields(d).ircv)
+    print(io, "Dominator tree for $f on $atype")
 end
 
 # https://github.com/JuliaDebug/Cthulhu.jl/issues/26
@@ -235,10 +258,9 @@ end
 
 function print_dot(io::IO, dot::IRCodeDomTree)
     @unpack ircv, domtree, include_code = Fields(dot)
-    @unpack ir, args = Fields(ircv)
-    f, t = args
+    @unpack ir = Fields(ircv)
 
-    graphname = "Dominator tree for $f on $t"
+    graphname = summary(dot)
     print(io, "digraph \"")
     escape_dot_label(io, graphname)
     println(io, "\" {")

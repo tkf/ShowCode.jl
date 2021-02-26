@@ -75,6 +75,7 @@ variable `Cthulhu.BOOKMARKS`.  This can be converted to code explores
 by:
 
 ```julia
-c = sc_llvm(Cthulhu.BOOKMARKS[END])
-c = sc_native(Cthulhu.BOOKMARKS[END])
+c = sc_ircode(Cthulhu.BOOKMARKS[end])
+c = sc_llvm(Cthulhu.BOOKMARKS[end])
+c = sc_native(Cthulhu.BOOKMARKS[end])
 ```

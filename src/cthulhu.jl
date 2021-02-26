@@ -1,3 +1,8 @@
+function sc_ircode(b::Cthulhu.Bookmark)
+    c = sc_ircode(b.mi; world = b.params.world)
+    return @set c.args = (b,)  # so that `c.llvm` works
+end
+
 function sc_llvm(b::Cthulhu.Bookmark; kw...)
     s = sprint() do io
         code_llvm(

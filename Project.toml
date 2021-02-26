@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 AbstractTrees = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
+Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 DefaultApplication = "3f0dd361-4fe0-5fc6-8523-80b14ec94d85"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
