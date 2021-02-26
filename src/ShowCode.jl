@@ -1,16 +1,18 @@
 baremodule ShowCode
 
-export @sc_llvm, @sc_native, @sc_intel, sc_llvm, sc_native, sc_intel
+export @sc_ircode, @sc_llvm, @sc_native, @sc_intel, sc_ircode, sc_llvm, sc_native, sc_intel
 
 #=
 macro sc_sexpr end
 macro sc_lowered end
 macro sc_typed end
 =#
+macro sc_ircode end
 macro sc_llvm end
 macro sc_native end
 macro sc_intel end
 
+function sc_ircode end
 function sc_llvm end
 function sc_native end
 function sc_intel end
@@ -21,8 +23,10 @@ function from_native end
 module Implementations
 
 using ..ShowCode: ShowCode
-import ..ShowCode: @sc_llvm, @sc_native, @sc_intel, sc_llvm, sc_native, sc_intel
+import ..ShowCode:
+    @sc_ircode, @sc_llvm, @sc_native, @sc_intel, sc_ircode, sc_llvm, sc_native, sc_intel
 
+import AbstractTrees
 import DefaultApplication
 import HTTP
 import JSON
@@ -40,6 +44,8 @@ using Requires: @require
 using UnPack: @unpack
 
 include("core.jl")
+include("code_ircode.jl")
+include("ircode.jl")
 include("llvm.jl")
 include("native.jl")
 include("godbolt.jl")
