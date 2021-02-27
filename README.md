@@ -5,10 +5,35 @@
 ShowCode.jl provides interfaces like `@code_llvm` and `@code_native`:
 
 ```julia
+c = @sc_ircode f(args...)
 c = @sc_llvm f(args...)
 c = @sc_native f(args...)
 c = @sc_intel f(args...)
 ```
+
+## Julia SSA IR
+
+```julia
+c = @sc_ircode f(args...)
+
+c                  # view IR in the REPL
+display(c)         # (ditto)
+
+c.cfg              # control-flow graph (CFG) visualizer
+c.cfg_only         # CFG without IR in node label
+c.dom              # dominator tree visualizer
+c.dom_only         # dominator tree without IR in node label
+display(c.cfg)     # display CFG
+
+c.llvm             # create LLVM IR explore
+c.native           # create native code explore
+c.att              # (ditto)
+c.intel            # create native code explore in intel syntax
+edit(c.native)
+abspath(c.native)
+```
+
+... and so on; type `c.` + TAB to see the full list.
 
 ## LLVM IR
 
