@@ -3,6 +3,9 @@
 
 Post code snippet in [Compiler Explore](godbolt.org).
 
+**WARNING**: When the code is posted to godbolt.org there is no way to delete
+the code as of writing.
+
 # Examples
 
 ```julia

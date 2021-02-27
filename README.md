@@ -56,15 +56,17 @@ abspath(c)         # file path to the text containing the code
 
 ## Post to [`godbolt.org`](https://godbolt.org/) (Compiler Explore)
 
-**WARNING**: For code with non-trivial length, it *posts* the code to
-godbolt.org and there is no way to delete the code as of writing.
+**WARNING**: For code with non-trivial length, `post_godbolt(ce)` and `ce()`
+*post* the code to godbolt.org and there is no way to delete the code as of
+writing.
 
 ```julia
 ce = (@sc_llvm ...).godbolt
 ce = (@sc_native ...).godbolt
 
-string(ce)  # get godbolt URL
-ce()        # open the URL in browser
+post_godbolt(ce)  # post the code to godbolt.org
+string(ce)        # get godbolt URL
+ce()              # open the URL in browser
 ```
 
 ## Cthulhu integration
