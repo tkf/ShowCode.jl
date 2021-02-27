@@ -22,7 +22,21 @@ function getcmd(config::ShowCodeConfig, name::Symbol)
         candidate = joinpath(toolsdir, string(name))
         isfile(candidate) && return `$candidate`
     end
-    return `$(string(name))`
+    prog = string(string(name))
+    if Sys.which(prog) === nothing && config === ShowCode.CONFIG
+        msg = (
+            "Program `$name` not found. If it exists outside the `\$PATH, " *
+            "set `ShowConfig.CONFIG.$name`."
+        )
+        if name in (:opt, :llc)
+            msg *= (
+                " You can also set `ShowConfig.CONFIG.toolsdir` to `usr/tools` of your" *
+                "Julia's build directory (if any)."
+            )
+        end
+        @error "$msg"
+    end
+    return `$prog`
 end
 
 
