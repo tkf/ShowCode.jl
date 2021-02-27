@@ -172,6 +172,12 @@ function escape_dot_label(io::IO, str)
     end
 end
 
+function Base.summary(io::IO, dot::IRCodeCFGDot)
+    @unpack ircv = Fields(dot)
+    @unpack f, atype = Fields(ircv)
+    print(io, "CFG of $f on $atype")
+end
+
 print_dot(dot) = print_dot(stdout, dot)
 function print_dot(io::IO, dot::IRCodeCFGDot)
     @unpack ircv, include_code = Fields(dot)
