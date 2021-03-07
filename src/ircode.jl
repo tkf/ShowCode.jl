@@ -149,6 +149,9 @@ function run_dot(output::IO, input::IO, options)
     return
 end
 
+# https://www.iana.org/assignments/media-types/text/vnd.graphviz
+Base.show(io::IO, ::MIME"text/vnd.graphviz", dot::AbstractLazyDot) = print_dot(io, dot)
+
 Base.show(io::IO, ::MIME"image/png", dot::AbstractLazyDot) =
     run_dot(io, dot_to_iobuffer(dot), `-Tpng`)
 Base.show(io::IO, ::MIME"image/svg+xml", dot::AbstractLazyDot) =
