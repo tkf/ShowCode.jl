@@ -46,6 +46,7 @@ import ..ShowCode:
 
 import AbstractTrees
 import DefaultApplication
+import LLVM_jll
 import HTTP
 import JSON
 using Accessors: @set

@@ -22,6 +22,14 @@ function getcmd(config::ShowCodeConfig, name::Symbol)
         candidate = joinpath(toolsdir, string(name))
         isfile(candidate) && return `$candidate`
     end
+    try
+        return getfield(LLVM_jll, name)()::Base.AbstractCmd
+    catch
+    end
+    try
+        return getfield(LLVM_jll, name)(identity)::Base.AbstractCmd
+    catch
+    end
     prog = string(string(name))
     if Sys.which(prog) === nothing && config === ShowCode.CONFIG
         msg = (

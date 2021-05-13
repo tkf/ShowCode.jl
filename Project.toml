@@ -11,6 +11,7 @@ DefaultApplication = "3f0dd361-4fe0-5fc6-8523-80b14ec94d85"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+LLVM_jll = "86de99a1-58d6-5da7-8064-bd56ce2e322c"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
