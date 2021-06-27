@@ -81,6 +81,14 @@ function sc_ircode(mi::Core.Compiler.MethodInstance; kwargs...)
     return IRCodeView(ir, f, atype, rtype, args, kwargs)
 end
 
+function sc_ircode(ir::Core.Compiler.IRCode; kwargs...)
+    f = "f?"
+    atype = "Tuple{?}"
+    rtype = nothing
+    args = (ir,)
+    return IRCodeView(ir, f, atype, rtype, args, kwargs)
+end
+
 function Base.summary(io::IO, llvm::IRCodeView)
     @unpack f, atype = Fields(llvm)
     print(io, "IRCodeView of ", f, " with ", atype)
