@@ -89,6 +89,15 @@ function sc_ircode(ir::Core.Compiler.IRCode; kwargs...)
     return IRCodeView(ir, f, atype, rtype, args, kwargs)
 end
 
+function sc_ircode(ci::Core.Compiler.CodeInfo; kwargs...)
+    ir = CompilerUtils.ircode_from_codeinfo(ci)
+    f = ci.parent.def.name
+    atype = Base.tuple_type_tail(ci.parent.def.sig)
+    rtype = ci.rettype
+    args = (ci,)
+    return IRCodeView(ir, f, atype, rtype, args, kwargs)
+end
+
 function Base.summary(io::IO, llvm::IRCodeView)
     @unpack f, atype = Fields(llvm)
     print(io, "IRCodeView of ", f, " with ", atype)

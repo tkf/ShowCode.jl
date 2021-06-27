@@ -63,6 +63,7 @@ using InteractiveUtils:
 using Requires: @require
 using UnPack: @unpack
 
+include("compilerutils.jl")
 include("core.jl")
 include("code_ircode.jl")
 include("ircode.jl")
