@@ -63,13 +63,10 @@ end
 
 Base.propertynames(native::CodeNative) = (
     # what else?
-    :godbolt,
 )
 
 Base.getproperty(native::CodeNative, name::Symbol) =
-    if name === :godbolt
-        Godbolt(native)
-    else
+    begin
         error("Unknown property: ", name)
     end
 

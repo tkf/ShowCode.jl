@@ -4,7 +4,6 @@ export @sc_intel,
     @sc_ircode,
     @sc_llvm,
     @sc_native,
-    post_godbolt,
     sc_intel,
     sc_ircode,
     sc_llvm,
@@ -28,8 +27,6 @@ function sc_intel end
 function from_llvm end
 function from_native end
 
-function post_godbolt end
-
 module Implementations
 
 using ..ShowCode: ShowCode
@@ -38,19 +35,14 @@ import ..ShowCode:
     @sc_ircode,
     @sc_llvm,
     @sc_native,
-    post_godbolt,
     sc_intel,
     sc_ircode,
     sc_llvm,
     sc_native
 
 import AbstractTrees
-import DefaultApplication
 import LLVM_jll
-import HTTP
-import JSON
 using Accessors: @set
-using Base64: base64encode
 using InteractiveUtils:
     InteractiveUtils,
     code_llvm,
@@ -69,7 +61,6 @@ include("code_ircode.jl")
 include("ircode.jl")
 include("llvm.jl")
 include("native.jl")
-include("godbolt.jl")
 
 function __init__()
     @require Cthulhu="f68482b8-f384-11e8-15f7-abe071a5a75f" include("cthulhu.jl")
