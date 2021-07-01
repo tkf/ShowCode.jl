@@ -198,6 +198,17 @@ function Base.summary(io::IO, dot::IRCodeCFGDot)
     print(io, "CFG of $f on $atype")
 end
 
+function find_syncregions(ir, bb)
+    ids = Int[]
+    for i in bb.stmts
+        inst = ir.stmts[i][:inst]
+        if inst isa Expr && inst.head === :syncregion
+            push!(ids, i)
+        end
+    end
+    return ids
+end
+
 print_dot(dot) = print_dot(stdout, dot)
 function print_dot(io::IO, dot::IRCodeCFGDot)
     @unpack ircv, include_code = Fields(dot)
@@ -211,6 +222,10 @@ function print_dot(io::IO, dot::IRCodeCFGDot)
             else
                 return "$(i)⚠"
             end
+        end
+        ids = find_syncregions(ir, ir.cfg.blocks[i])
+        if !isempty(ids)
+            return "$i SR(" * join(("%$i" for i in ids), ", ") * ")"
         end
         return string(i)
     end
@@ -244,8 +259,27 @@ function print_dot(io::IO, dot::IRCodeCFGDot)
         println(io, "];")
 
         # Print edges
-        for s in bb.succs
-            indented(i, " -> ", s, ";\n")
+        term = ir.stmts[bb.stmts[end]][:inst]
+        if term isa DetachNode && length(bb.succs) == 2 && term.label in bb.succs
+            det, = (i for i in bb.succs if i != term.label)
+            cont = term.label
+            indented(i, " -> ", cont, " [label = \" C($(term.syncregion))\"];\n")
+            indented(i, " -> ", det, " [label = \" D($(term.syncregion))\"];\n")
+        elseif term isa ReattachNode && length(bb.succs) == 1 && bb.succs[1] == term.label
+            indented(i, " -> ", term.label, " [label = \" R($(term.syncregion))\"];\n")
+        elseif term isa SyncNode && length(bb.succs) == 1
+            indented(i, " -> ", bb.succs[1], " [label = \" S($(term.syncregion))\"];\n")
+        else
+            if term isa Expr && term.head === :enter
+                elabel = " [label = \" E\"]"
+            elseif term isa Expr && term.head === :leave
+                elabel = " [label = \" L\"]"
+            else
+                elabel = ""
+            end
+            for s in bb.succs
+                indented(i, " -> ", s, elabel, ";\n")
+            end
         end
     end
     println(io, '}')

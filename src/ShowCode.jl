@@ -55,6 +55,24 @@ using InteractiveUtils:
 using Requires: @require
 using UnPack: @unpack
 
+const DetachNode = try
+    Core.DetachNode
+catch
+    Union{}
+end
+
+const ReattachNode = try
+    Core.ReattachNode
+catch
+    Union{}
+end
+
+const SyncNode = try
+    Core.SyncNode
+catch
+    Union{}
+end
+
 include("compilerutils.jl")
 include("core.jl")
 include("code_ircode.jl")
