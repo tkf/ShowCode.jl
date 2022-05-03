@@ -35,17 +35,32 @@ function code_ircode(mi::Core.Compiler.MethodInstance;
                      interp=Core.Compiler.NativeInterpreter(world))
     ccall(:jl_typeinf_begin, Cvoid, ())
     result = Core.Compiler.InferenceResult(mi)
-    frame = Core.Compiler.InferenceState(result, false, interp)
+    frame = @static if hasmethod(
+        Core.Compiler.InferenceState,
+        (Core.Compiler.InferenceResult, Bool, Core.Compiler.AbstractInterpreter),
+    )
+        Core.Compiler.InferenceState(result, #=cached=# false, interp)
+    else
+        Core.Compiler.InferenceState(result, #=cache=# :no, interp)
+    end
     frame === nothing && return nothing
+    nargs = Int((mi.def::Method).nargs)
     if Core.Compiler.typeinf(interp, frame)
         opt_params = Core.Compiler.OptimizationParams(interp)
         opt = Core.Compiler.OptimizationState(frame, opt_params, interp)
-        ir = Core.Compiler.run_passes(opt.src, opt.nargs - 1, opt)
+        ir = @static if hasmethod(
+            Core.Compiler.run_passes,
+            (Core.CodeInfo, Int, Core.Compiler.OptimizationState),
+        )
+            Core.Compiler.run_passes(opt.src, nargs - 1, opt)
+        else
+            Core.Compiler.run_passes(opt.src, opt, result)
+        end
         opt.src.inferred = true
     end
     ccall(:jl_typeinf_end, Cvoid, ())
     frame.inferred || return nothing
     # TODO(yhls): Fix this upstream
-    resize!(ir.argtypes, opt.nargs)
+    resize!(ir.argtypes, nargs)
     return ir => Core.Compiler.widenconst(result.result)
 end
