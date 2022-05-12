@@ -104,11 +104,27 @@ function Base.summary(io::IO, llvm::IRCodeView)
     return
 end
 
-function Base.show(io::IO, ::MIME"text/plain", ircv::IRCodeView)
+function show_ir_config(ir; debuginfo = :default)
+    if debuginfo === :source
+        return Base.IRShow.default_config(ir; verbose_linetable = true)
+    else
+        return Base.IRShow.default_config(ir; verbose_linetable = false)
+    end
+end
+
+function _show_ir(io::IO, ir::Core.Compiler.IRCode; options...)
+    if isempty(options)
+        show(io, MIME"text/plain"(), ir)
+        return
+    end
+    Base.IRShow.show_ir(io, ir, show_ir_config(ir; options...))
+end
+
+function Base.show(io::IO, ::MIME"text/plain", ircv::IRCodeView; options...)
     @unpack ir, rtype = Fields(ircv)
     summary(io, ircv)
     println(io)
-    show(io, MIME"text/plain"(), ir)
+    _show_ir(io, ir; options...)
     print(io, "⇒ ", rtype)
     println(io)
     return
