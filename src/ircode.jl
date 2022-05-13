@@ -225,6 +225,44 @@ function find_syncregions(ir, bb)
     return ids
 end
 
+
+print_stmt(io, x) = print(io, x)
+
+function print_stmt(io, ex::Expr)
+    if Meta.isexpr(ex, :enter, 1)
+        print(io, "enter #", ex.args[1])
+    elseif ex.head in (:leave, :pop_exception)
+        print(io, ex.head)
+        for a in ex.args
+            print(io, ' ')
+            print(io, a)
+        end
+    else
+        print(io, ex)
+    end
+end
+
+function print_stmt(io::IO, x::Core.GotoNode)
+    @unpack label = x
+    print(io, "goto #", label)
+end
+
+function print_stmt(io::IO, x::Core.GotoIfNot)
+    @unpack cond, dest = x
+    print(io, "goto #", dest, " if not ", cond)
+end
+
+function print_bb_stmts_for_dot_label(io, ir, bb)
+    for s in bb.stmts
+        ln = sprint() do io
+            print(io, "%", s, " = ")
+            print_stmt(io, ir.stmts.inst[s])
+        end
+        escape_dot_label(io, ln)
+        print(io, "\\l")
+    end
+end
+
 print_dot(dot) = print_dot(stdout, dot)
 function print_dot(io::IO, dot::IRCodeCFGDot)
     @unpack ircv, include_code = Fields(dot)
@@ -234,16 +272,16 @@ function print_dot(io::IO, dot::IRCodeCFGDot)
         inst = ir.stmts.inst[ir.cfg.blocks[i].stmts[end]]
         if inst isa Core.ReturnNode
             if isdefined(inst, :val)
-                return "$(i)⏎"
+                return "#$(i)⏎"
             else
-                return "$(i)⚠"
+                return "#$(i)⚠"
             end
         end
         ids = find_syncregions(ir, ir.cfg.blocks[i])
         if !isempty(ids)
-            return "$i SR(" * join(("%$i" for i in ids), ", ") * ")"
+            return "#$i SR(" * join(("%$i" for i in ids), ", ") * ")"
         end
-        return string(i)
+        return string("#", i)
     end
 
     graphname = summary(dot)
@@ -263,10 +301,7 @@ function print_dot(io::IO, dot::IRCodeCFGDot)
         else
             print(io, ", label=\"{$(bblabel(i))}\", tooltip=\"")
         end
-        for s in bb.stmts
-            escape_dot_label(io, string("%", s, " = ", ir.stmts.inst[s]))
-            print(io, "\\l")
-        end
+        print_bb_stmts_for_dot_label(io, ir, bb)
         if include_code
             print(io, "}\"")
         else
@@ -355,10 +390,7 @@ function print_dot(io::IO, dot::IRCodeDomTree)
         else
             print(io, ", label=\"{$i}\", tooltip=\"")
         end
-        for s in bb.stmts
-            escape_dot_label(io, string("%", s, " = ", ir.stmts.inst[s]))
-            print(io, "\\l")
-        end
+        print_bb_stmts_for_dot_label(io, ir, bb)
         if include_code
             print(io, "}\"")
         else
