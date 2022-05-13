@@ -264,7 +264,7 @@ function print_dot(io::IO, dot::IRCodeCFGDot)
             print(io, ", label=\"{$(bblabel(i))}\", tooltip=\"")
         end
         for s in bb.stmts
-            escape_dot_label(io, string(ir.stmts.inst[s]))
+            escape_dot_label(io, string("%", s, " = ", ir.stmts.inst[s]))
             print(io, "\\l")
         end
         if include_code
@@ -356,7 +356,7 @@ function print_dot(io::IO, dot::IRCodeDomTree)
             print(io, ", label=\"{$i}\", tooltip=\"")
         end
         for s in bb.stmts
-            escape_dot_label(io, string(ir.stmts.inst[s]))
+            escape_dot_label(io, string("%", s, " = ", ir.stmts.inst[s]))
             print(io, "\\l")
         end
         if include_code
