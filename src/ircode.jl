@@ -322,14 +322,15 @@ function print_dot(io::IO, dot::IRCodeCFGDot)
             indented(i, " -> ", bb.succs[1], " [label = \" S($(term.syncregion))\"];\n")
         else
             if term isa Expr && term.head === :enter
-                elabel = " [label = \" E\"]"
+                attr = "label = \" E\""
             elseif term isa Expr && term.head === :leave
-                elabel = " [label = \" L\"]"
+                attr = "label = \" L\""
             else
-                elabel = ""
+                attr = ""
             end
             for s in bb.succs
-                indented(i, " -> ", s, elabel, ";\n")
+                attr2 = i == s ? "dir = back " : ""
+                indented(i, " -> ", s, " [", attr2, attr, "]", ";\n")
             end
         end
     end
